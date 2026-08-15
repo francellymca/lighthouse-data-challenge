@@ -393,3 +393,87 @@ A média móvel considera apenas o comportamento recente da demanda e não incor
 ### Conclusão
 
 O baseline apresentou previsões inferiores aos valores reais durante todo o primeiro trimestre de 2026. Apesar de ser adequado como referência inicial de comparação, o erro observado indica a necessidade de avaliar modelos mais capazes de representar mudanças no comportamento da demanda.
+
+---
+
+## Questão 7 — Sistema de Recomendação
+
+### Objetivo
+
+Identificar os produtos com comportamento de compra mais semelhante ao produto `Motor de Popa 1949`, utilizando um sistema de recomendação baseado na similaridade entre os históricos de compra dos clientes.
+
+### Construção da matriz usuário–produto
+
+Para relacionar os clientes aos produtos adquiridos, foi utilizada a seguinte cadeia de relacionamentos:
+
+`orders → order_items → product_variants → products`
+
+O `customer_id` foi obtido a partir da tabela `orders`, enquanto o `product_id` foi identificado relacionando `order_items.product_variant_id` com `product_variants.id`.
+
+A matriz usuário–produto foi construída utilizando:
+
+- linhas: `customer_id`;
+- colunas: `product_id`;
+- valor 1: cliente comprou o produto ao menos uma vez;
+- valor 0: cliente não comprou o produto.
+
+Compras repetidas do mesmo produto pelo mesmo cliente foram consideradas apenas uma vez, pois o modelo utiliza somente presença ou ausência da interação.
+
+A matriz resultante apresentou:
+
+- **2.000 clientes**
+- **500 produtos**
+
+### Similaridade entre produtos
+
+A similaridade entre os produtos foi calculada utilizando Similaridade de Cosseno sobre as colunas da matriz usuário–produto.
+
+Dessa forma, cada produto é representado por um vetor binário que indica quais clientes o adquiriram.
+
+O produto utilizado como referência foi:
+
+**Motor de Popa 1949 — product_id 180**
+
+O próprio produto foi removido do ranking de similaridade.
+
+### Top 5 produtos mais similares
+
+| Posição | Produto | Similaridade |
+|---:|---|---:|
+| 1 | Motor de Popa 5331 | 0,256553 |
+| 2 | Cabo Náutico 2105 | 0,256239 |
+| 3 | Vela Mestra 1913 | 0,255785 |
+| 4 | Cabo Náutico 9048 | 0,239332 |
+| 5 | GPS Plotter 6249 | 0,237744 |
+
+O produto com maior similaridade ao `Motor de Popa 1949` foi:
+
+**Motor de Popa 5331**, com similaridade de **0,256553**.
+
+### Respostas para a Questão 7.3
+
+#### 1. Como a matriz foi construída?
+
+A matriz foi construída relacionando os pedidos aos respectivos clientes e produtos. O `customer_id` foi obtido da tabela `orders`, enquanto o produto foi identificado a partir de `order_items.product_variant_id`, relacionado a `product_variants.id` e posteriormente a `product_id`.
+
+Após o relacionamento, cada combinação entre cliente e produto foi considerada apenas uma vez. Os clientes foram representados nas linhas e os produtos nas colunas. Cada célula recebeu valor 1 quando o cliente havia comprado o produto ao menos uma vez e 0 caso contrário, independentemente da quantidade adquirida.
+
+#### 2. O que significa a similaridade de cosseno nesse contexto?
+
+A similaridade de cosseno compara os vetores de interação dos produtos. Nesse contexto, ela mede o quanto dois produtos apresentam padrões semelhantes de compradores.
+
+Quanto maior a similaridade, maior a sobreposição relativa entre os clientes que adquiriram os dois produtos. Portanto, produtos com maior similaridade ao item de referência são candidatos para recomendação com base no comportamento histórico dos clientes.
+
+Essa métrica indica similaridade entre os conjuntos de compradores, mas não significa necessariamente que os produtos tenham sido adquiridos na mesma transação.
+
+#### 3. Uma limitação desse método de recomendação
+
+Uma limitação é que a abordagem considera apenas a presença ou ausência da compra. Informações como quantidade adquirida, momento da compra, preço, características do produto e contexto da transação não participam do cálculo.
+
+Além disso, produtos com grande popularidade podem apresentar similaridade com diversos itens simplesmente por terem sido adquiridos por muitos clientes.
+
+### Conclusão
+
+A análise baseada na similaridade de cosseno identificou o `Motor de Popa 5331` como o produto com padrão de compradores mais semelhante ao `Motor de Popa 1949`, apresentando similaridade de 0,256553.
+
+O resultado pode ser utilizado como base para uma estratégia simples de recomendação colaborativa, embora análises adicionais sejam necessárias para avaliar aspectos como compras realizadas na mesma transação e influência da popularidade dos produtos.
