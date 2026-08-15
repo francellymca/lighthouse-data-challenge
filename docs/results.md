@@ -304,3 +304,92 @@ Ao incluir os dias sem venda com valor igual a zero, esses dias passam a compor 
 Considerando todos os dias do calendário, inclusive aqueles sem registros de vendas, a Quinta-feira apresentou a menor média diária de vendas das lojas físicas, com R$ 157.154,32.
 
 Esse resultado identifica o dia de menor desempenho médio sob as premissas estabelecidas no desafio, mas isoladamente não é suficiente para recomendar o fechamento das lojas, pois uma decisão desse tipo também dependeria de informações como custos operacionais, margem e comportamento individual de cada unidade.
+
+---
+
+## Questão 6 — Previsão de Demanda
+
+### Objetivo
+
+Construir um modelo baseline para prever a demanda mensal do produto `Bússola de Bordo 702` no primeiro trimestre de 2026, utilizando uma média móvel dos últimos três meses.
+
+### Construção do dataset
+
+Foram utilizados os datasets:
+
+- `products.csv`
+- `product_variants.csv`
+- `order_items.csv`
+- `orders.csv`
+
+O relacionamento utilizado foi:
+
+`products → product_variants → order_items → orders`
+
+Foram identificados dois registros em `products` com o nome exato `Bússola de Bordo 702`, correspondentes aos IDs 74 e 240. Ambos foram considerados na construção da série histórica de demanda.
+
+A demanda mensal foi calculada por meio da soma de `order_items.quantity` por mês.
+
+### Baseline
+
+O período de treino considerou os dados disponíveis até 31/12/2025.
+
+O baseline foi construído utilizando a média móvel dos três meses imediatamente anteriores à data prevista.
+
+Para evitar o uso de informações futuras, as previsões do primeiro trimestre de 2026 foram geradas de forma recursiva:
+
+- Jan/2026 utiliza Out/2025, Nov/2025 e Dez/2025;
+- Fev/2026 utiliza Nov/2025, Dez/2025 e a previsão de Jan/2026;
+- Mar/2026 utiliza Dez/2025 e as previsões de Jan/2026 e Fev/2026.
+
+Os valores reais do período de teste não foram utilizados para gerar previsões posteriores.
+
+### Resultados
+
+| Mês | Valor real | Previsão | Erro absoluto |
+|---|---:|---:|---:|
+| Jan/2026 | 79 | 38,67 | 40,33 |
+| Fev/2026 | 68 | 40,22 | 27,78 |
+| Mar/2026 | 60 | 33,63 | 26,37 |
+
+**MAE: 31,49 unidades**
+
+A soma das previsões para o primeiro trimestre de 2026 foi:
+
+**112,52 unidades**
+
+Arredondando para número inteiro:
+
+**113 unidades**
+
+### Avaliação do baseline
+
+O baseline é útil como referência inicial por ser simples, interpretável e de baixo custo computacional. Entretanto, para esse produto, o desempenho observado indica que ele não é suficiente como modelo final de previsão.
+
+As previsões ficaram abaixo dos valores reais nos três meses do período de teste, e o MAE foi de 31,49 unidades, indicando erro relevante para um problema de planejamento de estoque.
+
+### Resposta para a Questão 6.2
+### Validação
+
+Utilizando seu modelo treinado, qual é a soma total da previsão de vendas (arredondada para número inteiro) para o 'Bússola de Bordo 702' durante o primeiro trimestre de 2026?
+Resp.: 113
+
+### Respostas para a Questão 6.3
+
+#### 1. Como o baseline foi construído?
+
+A demanda foi agregada mensalmente a partir da soma das quantidades vendidas do produto. Para cada mês previsto, foi calculada a média das três observações imediatamente anteriores disponíveis no histórico.
+
+#### 2. Como foi evitado data leakage?
+
+O conjunto de treino foi limitado aos dados até 31/12/2025. Nenhum valor real do primeiro trimestre de 2026 foi utilizado para construir as previsões.
+
+Como a previsão foi realizada para três meses futuros, o processo foi recursivo. Após prever janeiro, esse valor previsto foi incorporado ao histórico utilizado para prever fevereiro. O mesmo procedimento foi aplicado para março. Dessa forma, apenas informações disponíveis até cada momento de previsão foram utilizadas.
+
+#### 3. Uma limitação do modelo proposto
+
+A média móvel considera apenas o comportamento recente da demanda e não incorpora fatores como tendência, sazonalidade, promoções, disponibilidade de estoque ou outras variáveis que possam influenciar as vendas. Mudanças rápidas no padrão de demanda podem, portanto, não ser capturadas pelo modelo.
+
+### Conclusão
+
+O baseline apresentou previsões inferiores aos valores reais durante todo o primeiro trimestre de 2026. Apesar de ser adequado como referência inicial de comparação, o erro observado indica a necessidade de avaliar modelos mais capazes de representar mudanças no comportamento da demanda.
