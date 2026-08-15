@@ -65,3 +65,52 @@ A tabela `orders` apresenta boa consistência para análises exploratórias inic
 Entretanto, foram identificados potenciais outliers na coluna `total` e uma quantidade relevante de valores ausentes em `salesperson_id`, concentrados no canal `ecommerce`. Esses pontos devem ser considerados em análises futuras e investigados de acordo com o contexto e as regras de negócio antes da aplicação de qualquer tratamento.
 
 Dessa forma, os dados apresentam condições adequadas para análises exploratórias, mas determinadas análises de negócio podem exigir validações adicionais.
+
+---
+
+## Questão 2 — Geração do Schema PostgreSQL
+
+### Objetivo
+
+Desenvolver um script em Python capaz de identificar automaticamente os arquivos CSV disponíveis no diretório de dados e gerar um único arquivo `schema.sql` contendo as instruções de criação das respectivas tabelas em PostgreSQL.
+
+### Implementação
+
+O script `generate_schema.py` foi desenvolvido utilizando exclusivamente bibliotecas padrão do Python 3.
+
+A solução percorre automaticamente os arquivos `.csv` presentes em `data/raw`, identifica os nomes e valores das colunas e realiza a inferência dos tipos de dados para PostgreSQL.
+
+Foram considerados os seguintes tipos:
+
+| Característica identificada | Tipo PostgreSQL |
+|---|---|
+| Valores inteiros | `BIGINT` |
+| Valores decimais | `NUMERIC` |
+| Valores booleanos | `BOOLEAN` |
+| Datas | `DATE` |
+| Data e horário | `TIMESTAMP` |
+| Textos, códigos e identificadores | `TEXT` |
+
+Colunas que representam códigos ou identificadores, como `ncm_code`, são preservadas como `TEXT`, evitando perda de significado ou de possíveis zeros à esquerda.
+
+### Resultado
+
+Foram identificados os 24 arquivos CSV fornecidos no desafio e geradas automaticamente 24 instruções `CREATE TABLE` no arquivo `schema.sql`.
+
+A quantidade de tabelas geradas foi validada por meio da contagem das instruções `CREATE TABLE`:
+
+`24`
+
+Também foram verificadas tabelas relevantes, como `orders`, `customers`, `order_items`, `products` e `product_variants`, confirmando a coerência dos tipos inferidos.
+
+Exemplos:
+
+- valores monetários, como `total` e `sale_price`, foram classificados como `NUMERIC`;
+- identificadores relacionais foram classificados como `BIGINT`;
+- campos booleanos, como `is_active`, foram classificados como `BOOLEAN`;
+- campos temporais, como `created_at`, foram classificados como `TIMESTAMP`;
+- códigos e identificadores textuais foram preservados como `TEXT`.
+
+### Conclusão
+
+O processo gerou um schema reproduzível a partir dos arquivos de origem, sem necessidade de definição manual das 24 tabelas. A solução utiliza somente recursos da biblioteca padrão do Python 3 e produz um único arquivo SQL compatível com PostgreSQL.
