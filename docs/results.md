@@ -114,3 +114,46 @@ Exemplos:
 ### Conclusão
 
 O processo gerou um schema reproduzível a partir dos arquivos de origem, sem necessidade de definição manual das 24 tabelas. A solução utiliza somente recursos da biblioteca padrão do Python 3 e produz um único arquivo SQL compatível com PostgreSQL.
+
+---
+
+## Questão 3 — Carregamento dos Dados
+
+### Objetivo
+
+Realizar o carregamento dos arquivos CSV no banco PostgreSQL utilizando o schema gerado na Questão 2, preservando os dados brutos sem remoção de valores nulos ou correção dos registros.
+
+### Implementação
+
+O carregamento foi realizado por meio de um script em Python utilizando a biblioteca `psycopg` para conexão com o PostgreSQL.
+
+Os arquivos CSV armazenados em `data/raw` foram identificados automaticamente e carregados para as tabelas correspondentes por meio do comando `COPY FROM STDIN`.
+
+Nenhum tratamento, remoção de valores nulos ou alteração dos arquivos de origem foi realizado durante o processo.
+
+### Validação da carga
+
+Para validar o carregamento, a quantidade de registros de cada arquivo CSV foi comparada com a quantidade de registros inseridos na respectiva tabela PostgreSQL.
+
+Foram validadas todas as 24 tabelas:
+
+`24/24 tabelas com quantidade de registros correspondente aos arquivos de origem.`
+
+### Questão 3.2
+
+A quantidade de registros nas tabelas solicitadas foi:
+
+| Tabela | Registros |
+|---|---:|
+| `customers` | 2.000 |
+| `orders` | 48.998 |
+| `order_items` | 147.320 |
+| `payments` | 53.546 |
+
+A soma total corresponde a:
+
+**251.864 registros**
+
+### Conclusão
+
+O carregamento dos 24 arquivos CSV foi concluído com sucesso no PostgreSQL. A comparação entre os arquivos de origem e as tabelas carregadas não apresentou divergências na quantidade de registros.
