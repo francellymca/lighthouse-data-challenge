@@ -232,3 +232,75 @@ Sobre esse conjunto foi aplicado o ranking pelo Ticket Médio em ordem decrescen
 A seleção dos clientes foi realizada antes da análise das categorias, em uma CTE específica denominada `top_10_customers`. O cálculo da quantidade de itens foi realizado posteriormente, partindo exclusivamente dos clientes presentes nessa CTE e relacionando seus pedidos às tabelas `order_items`, `product_variants` e `products`.
 
 Dessa forma, o `SUM(quantity)` utilizado no ranking das categorias considera somente os pedidos pertencentes aos dez clientes previamente selecionados, impedindo que compras de outros clientes influenciem o resultado.
+
+---
+
+## Questão 5 — Dimensão de Calendário
+
+### Objetivo
+
+Calcular a média diária de vendas das lojas físicas por dia da semana, considerando também os dias em que a loja esteve aberta, mas não apresentou registros de vendas.
+
+### Metodologia
+
+Foi construída uma dimensão de datas em PostgreSQL utilizando `generate_series`, abrangendo todas as datas entre o menor e o maior valor de `created_at` presentes na tabela `orders`.
+
+Cada data foi associada ao respectivo dia da semana em português.
+
+As vendas diárias foram calculadas considerando somente os pedidos do canal `pos`:
+
+`SUM(total) por data`
+
+A dimensão de datas foi então relacionada às vendas por meio de `LEFT JOIN`. Para os dias sem registros de vendas, o valor nulo resultante da junção foi substituído por zero utilizando `COALESCE`.
+
+Somente após essa etapa foi calculada a média das vendas por dia da semana.
+
+### Resultado
+
+| Dia da semana | Média diária de vendas |
+|---|---:|
+| Quinta-feira | R$ 157.154,32 |
+| Domingo | R$ 157.616,13 |
+| Segunda-feira | R$ 158.241,15 |
+| Sábado | R$ 164.858,27 |
+| Terça-feira | R$ 166.118,83 |
+| Sexta-feira | R$ 170.193,68 |
+| Quarta-feira | R$ 173.605,44 |
+
+A **Quinta-feira** apresentou a menor média diária de vendas no canal físico, com **R$ 157.154,32**.
+
+### Validação dos dias sem venda
+
+Como validação adicional, foi contabilizada a quantidade de dias sem registros de vendas POS em cada dia da semana.
+
+| Dia da semana | Total de dias | Dias sem venda | Dias com venda |
+|---|---:|---:|---:|
+| Segunda-feira | 365 | 7 | 358 |
+| Terça-feira | 365 | 8 | 357 |
+| Quarta-feira | 366 | 10 | 356 |
+| Quinta-feira | 366 | 20 | 346 |
+| Sexta-feira | 365 | 10 | 355 |
+| Sábado | 365 | 11 | 354 |
+| Domingo | 365 | 12 | 353 |
+
+A validação confirma que o uso direto da tabela `orders` excluiria da média os dias em que nenhuma venda foi registrada. Quinta-feira, por exemplo, apresentou 20 dias sem vendas durante o período analisado.
+
+### Respostas para a Questão 5.2
+
+#### 1. Por que é necessário utilizar uma tabela de datas em vez de agrupar diretamente a tabela de vendas?
+
+A tabela `orders` possui registros apenas para as datas em que ocorreram pedidos. Dessa forma, um agrupamento realizado diretamente sobre essa tabela desconsideraria os dias em que a loja esteve aberta, mas não registrou vendas.
+
+A dimensão de datas garante a existência de todas as datas do período analisado. Por meio de um `LEFT JOIN`, as vendas existentes são associadas ao calendário e, nos dias sem registros, o valor é substituído por zero. Assim, a média considera todos os dias em que a loja esteve aberta e não apenas aqueles em que houve vendas.
+
+#### 2. O que aconteceria com a média se um dia da semana tivesse muitos dias sem nenhuma venda registrada?
+
+Caso os dias sem vendas fossem ignorados, a média seria calculada somente com as datas em que ocorreram vendas e, consequentemente, ficaria artificialmente elevada.
+
+Ao incluir os dias sem venda com valor igual a zero, esses dias passam a compor o denominador da média, produzindo um resultado mais representativo do desempenho real daquele dia da semana.
+
+### Conclusão
+
+Considerando todos os dias do calendário, inclusive aqueles sem registros de vendas, a Quinta-feira apresentou a menor média diária de vendas das lojas físicas, com R$ 157.154,32.
+
+Esse resultado identifica o dia de menor desempenho médio sob as premissas estabelecidas no desafio, mas isoladamente não é suficiente para recomendar o fechamento das lojas, pois uma decisão desse tipo também dependeria de informações como custos operacionais, margem e comportamento individual de cada unidade.
