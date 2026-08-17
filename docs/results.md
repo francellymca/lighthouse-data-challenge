@@ -369,10 +369,14 @@ O baseline é útil como referência inicial por ser simples, interpretável e d
 As previsões ficaram abaixo dos valores reais nos três meses do período de teste, e o MAE foi de 31,49 unidades, indicando erro relevante para um problema de planejamento de estoque.
 
 ### Resposta para a Questão 6.2
-### Validação
 
-Utilizando seu modelo treinado, qual é a soma total da previsão de vendas (arredondada para número inteiro) para o 'Bússola de Bordo 702' durante o primeiro trimestre de 2026?
-Resp.: 113
+#### Validação
+
+Utilizando o modelo treinado, qual é a soma total da previsão de vendas
+(arredondada para número inteiro) para o `Bússola de Bordo 702` durante
+o primeiro trimestre de 2026?
+
+**Resposta: 113 unidades**
 
 ### Respostas para a Questão 6.3
 
@@ -477,3 +481,35 @@ Além disso, produtos com grande popularidade podem apresentar similaridade com 
 A análise baseada na similaridade de cosseno identificou o `Motor de Popa 5331` como o produto com padrão de compradores mais semelhante ao `Motor de Popa 1949`, apresentando similaridade de 0,256553.
 
 O resultado pode ser utilizado como base para uma estratégia simples de recomendação colaborativa, embora análises adicionais sejam necessárias para avaliar aspectos como compras realizadas na mesma transação e influência da popularidade dos produtos.
+
+---
+
+## Dashboard Analítico
+
+Como complemento às questões técnicas, foi desenvolvido um dashboard em Power BI
+para consolidar os principais indicadores comerciais e permitir a exploração dos dados
+por diferentes perspectivas.
+
+A solução foi organizada em quatro páginas:
+
+- Visão Executiva de Vendas;
+- Análise de Produtos;
+- Análise de Clientes;
+- Análise Geográfica.
+
+Os indicadores foram validados em diferentes combinações de ano e canal, com
+verificações de consistência entre faturamento, pedidos, clientes, produtos,
+localidades e análises de concentração.
+
+Durante essa etapa também foram investigados comportamentos aparentemente constantes
+nos dados. Um exemplo foi o indicador de categorias vendidas, que permaneceu em 14
+nos diferentes recortes testados. A análise detalhada confirmou que todas as
+14 categorias apresentavam vendas nesses contextos, caracterizando um comportamento
+do conjunto de dados e não uma falha na propagação dos filtros.
+
+A descrição completa da estrutura, dos indicadores e das validações do dashboard
+está disponível em [`dashboard/README.md`](../dashboard/README.md).
+
+O arquivo Power BI está disponível em:
+
+`dashboard/lh_nautical_dashboard.pbix`
